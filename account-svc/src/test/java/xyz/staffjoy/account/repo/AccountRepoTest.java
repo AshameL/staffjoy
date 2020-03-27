@@ -30,6 +30,7 @@ public class AccountRepoTest {
 
     private Account newAccount;
 
+    // 测试之前的数据加载。
     @Before
     public void setUp() {
         newAccount = Account.builder()
@@ -170,6 +171,7 @@ public class AccountRepoTest {
 
     }
 
+    // 清掉数据
     @After
     public void destroy() {
         accountRepo.deleteAll();

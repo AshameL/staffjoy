@@ -36,6 +36,12 @@ public abstract class MappingsProvider {
         this.httpClientProvider = httpClientProvider;
     }
 
+    /**
+     * 传一个主机头，返回对应的映射。
+     * @param originHost
+     * @param request
+     * @return MappingProperties 路由映射
+     */
     public MappingProperties resolveMapping(String originHost, HttpServletRequest request) {
         if (shouldUpdateMappings(request)) {
             updateMappings();
@@ -49,7 +55,12 @@ public abstract class MappingsProvider {
         return resolvedMappings.get(0);
     }
 
-    @PostConstruct
+    /**
+     * 如果 路由映射表 更新了，会更新路由映射信息。
+     * synchronized的方法
+     *
+     */
+    @PostConstruct  //todo  啥意思?
     protected synchronized void updateMappings() {
         List<MappingProperties> newMappings = retrieveMappings();
         mappingsValidator.validate(newMappings);
@@ -58,6 +69,11 @@ public abstract class MappingsProvider {
         log.info("Destination mappings updated", mappings);
     }
 
+    /**
+     * 是否应该更新mapping，由子类实现
+     * @param request
+     * @return
+     */
     protected abstract boolean shouldUpdateMappings(HttpServletRequest request);
 
     protected abstract List<MappingProperties> retrieveMappings();

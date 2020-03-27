@@ -14,7 +14,7 @@ import static java.util.stream.Collectors.toMap;
 import static org.apache.http.impl.client.HttpClientBuilder.create;
 
 public class HttpClientProvider {
-    protected Map<String, RestTemplate> httpClients = new HashMap<>();
+    protected Map<String, RestTemplate> httpClients = new HashMap<>(); //todo restTemplate 是什么呢
 
     public void updateHttpClients(List<MappingProperties> mappings) {
         httpClients = mappings.stream().collect(toMap(MappingProperties::getName, this::createRestTemplate));

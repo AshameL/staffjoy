@@ -35,7 +35,7 @@ public class FaradayProperties {
     /**
      * List of proxy mappings.
      */
-    @NestedConfigurationProperty
+    @NestedConfigurationProperty  //todo 查一下这个注解
     private List<MappingProperties> mappings = new ArrayList<>();
 
     public int getFilterOrder() {

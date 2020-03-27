@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 基于静态配置的MappingProvider
+ */
 public class ConfigurationMappingsProvider extends MappingsProvider {
 
     public ConfigurationMappingsProvider(
@@ -21,7 +24,12 @@ public class ConfigurationMappingsProvider extends MappingsProvider {
                 mappingsValidator, httpClientProvider);
     }
 
-
+    /**
+     * 基于配置文件的不需要动态更新。
+     * 返回false
+     * @param request
+     * @return
+     */
     @Override
     protected boolean shouldUpdateMappings(HttpServletRequest request) {
         return false;

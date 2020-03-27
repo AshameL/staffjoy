@@ -57,6 +57,14 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         this.preForwardRequestInterceptor = requestInterceptor;
     }
 
+    /**
+     * todo 1. 网关入口：当某个请求进入的时候
+     * @param request
+     * @param response
+     * @param filterChain
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String originUri = extractor.extractUri(request);
@@ -68,11 +76,12 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
 
         HttpHeaders headers = extractor.extractHttpHeaders(request);
         HttpMethod method = extractor.extractHttpMethod(request);
-
+        //todo 2. 拦截器  这里是调试的日志？
         String traceId = traceInterceptor.generateTraceId();
         traceInterceptor.onRequestReceived(traceId, method, originHost, originUri, headers);
-
+        // 3. 路由解析
         MappingProperties mapping = mappingsProvider.resolveMapping(originHost, request);
+        // 4. 如果没有找到映射表，抛出异常。
         if (mapping == null) {
             traceInterceptor.onNoMappingFound(traceId, method, originHost, originUri, headers);
 
@@ -84,20 +93,23 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         } else {
             log.debug(String.format("Forwarding: %s %s %s -> %s", method, originHost, originUri, mapping.getDestinations()));
         }
-
+        // 取出body
         byte[] body = extractor.extractBody(request);
+        // 根据需要添加转发的header
         addForwardHeaders(request, headers);
 
         RequestData dataToForward = new RequestData(method, originHost, originUri, headers, body, request);
         preForwardRequestInterceptor.intercept(dataToForward, mapping);
+        // 如果重定向，直接返回
         if (dataToForward.isNeedRedirect() && !isBlank(dataToForward.getRedirectUrl())) {
             log.debug(String.format("Redirecting to -> %s", dataToForward.getRedirectUrl()));
             response.sendRedirect(dataToForward.getRedirectUrl());
             return;
         }
-
+        // 来到了 “转发器”
         ResponseEntity<byte[]> responseEntity =
                 requestForwarder.forwardHttpRequest(dataToForward, traceId, mapping);
+        // 实现父类的方法，执行request
         this.processResponse(response, responseEntity);
     }
 
@@ -113,7 +125,11 @@ public class ReverseProxyFilter extends OncePerRequestFilter {
         headers.set(X_FORWARDED_PORT_HEADER, valueOf(request.getServerPort()));
     }
 
-
+    /**
+     * 设置response status、header、body中写入信息。
+     * @param response
+     * @param responseEntity
+     */
     protected void processResponse(HttpServletResponse response, ResponseEntity<byte[]> responseEntity) {
         response.setStatus(responseEntity.getStatusCode().value());
         responseEntity.getHeaders().forEach((name, values) ->

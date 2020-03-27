@@ -87,7 +87,7 @@ public class ServiceDirectory {
                 .build();
         map.put("www", service);
 
-        serviceMap = Collections.unmodifiableMap(map);
+        serviceMap = Collections.unmodifiableMap(map); //todo  unmodifiableMap的含义
     }
 
     public static Map<String, Service> getMapping() {

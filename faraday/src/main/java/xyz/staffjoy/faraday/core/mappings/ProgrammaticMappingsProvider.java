@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 基于编程的MappingProvider
+ */
 public class ProgrammaticMappingsProvider extends MappingsProvider {
     protected final EnvConfig envConfig;
 
@@ -28,6 +31,11 @@ public class ProgrammaticMappingsProvider extends MappingsProvider {
         this.envConfig = envConfig;
     }
 
+    /**
+     * 感觉这里偷懒了啊。
+     * @param request
+     * @return
+     */
     @Override
     protected boolean shouldUpdateMappings(HttpServletRequest request) {
         return false;
